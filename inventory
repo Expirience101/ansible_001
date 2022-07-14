@@ -1,2 +1,2 @@
-c1@10.0.2.15
-c2@10.0.2.7
+c1@10.0.2.15 apache_package=apache2 php_package=libapache2-mod-php
+c2@10.0.2.7 apache_package=apache2 php_package=libapache2-mod-php
