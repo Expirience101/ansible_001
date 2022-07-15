@@ -6,3 +6,6 @@ c2@10.0.2.7
 
 [file_servers]
 c1@10.0.2.8
+
+[workstations]
+10.0.2.6
