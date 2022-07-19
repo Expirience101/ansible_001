@@ -1,115 +1,44 @@
 ---
-
-- hosts: all
-  become: true
-  pre_tasks:
-
-  - name: update repo cache on Ubuntu
-    tags: always
-    apt:
-      update_cache: yes
-    changed_when: false
-    when: ansible_distribution == "Ubuntu"
-
-  - name: update repo cache on CentOS
-    tags: always
-    dnf:
-      update_cache: yes
-    changed_when: false
-    when: ansible_distribution == "CentOS"
-
-- hosts: all
-  become: true
-  tasks:
-
-  - name: add ssh key for simone
-    tags: always
-    authorized_key:
-      user: simone
-      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHjW0hctaWKS4nn9/IaVjkKEZmPpn/PrFo0DjjmapTca ansible"
-
-- hosts: workstations
-  become: true
-  tasks:
-
-  - name: install unzip
-    package:
-      name: unzip
-
-  - name: install terraform
-    unarchive:
-      src: https://releases.hashicorp.com/terraform/1.2.5/terraform_1.2.5_linux_amd64.zip
-      dest: /usr/local/bin
-      remote_src: yes
-      mode: 0755
-      owner: root
-      group: root
-
-- hosts: web_servers
-  become: true
-  tasks:
-
-  - name: install apache and php for Ubuntu
-    tags: apache,apache2,ubuntu
-    apt:
-      name:
-        - apache2
-        - libapache2-mod-php
-      state: latest
-    when: ansible_distribution == "Ubuntu"
-
-  - name: install apache and php for CentOS
-    tags: apache,centos,httpd
-    dnf:
-      name:
-        - httpd
-        - php
-      state: latest
-    when: ansible_distribution == "CentOS"
-
-  - name: start apache2 (Ubuntu)
-    tags: apache
-    service:
-      name: apache2
-      state: started
-      enabled: yes
-    when: ansible_distribution == "Ubuntu"
-
-  - name: copy default html file for site
-    tags: apache,apache2,httpd
-    copy:
-      src: default_site.html
-      dest: /var/www/html/index.html
-      owner: root
-      group: root
-      mode: 0644
-
-- hosts: db_servers
-  become: true
-  tasks:
-
-  - name: install mariadb for Ubuntu
-    tags: mariadb,ubuntu,db
-    apt:
-      name:
-        - mariadb-server
-      state: latest
-    when: ansible_distribution == "Ubuntu"
-
-  - name: install mariadb for CentOS
-    tags: mariadb,centos,db
-    dnf:
-      name:
-        - mariadb
-      state: latest
-    when: ansible_distribution == "CentOS"
-
-- hosts: file_servers
-  become: true
-  tasks:
-
-  - name: install samba package
-    tags: samba
-    package:
-      name: samba
-      state: latest
+ 
+ - hosts: all
+   become: true
+   pre_tasks:
+ 
+   - name: update repository index (CentOS)
+     tags: always
+     dnf:
+       update_cache: yes
+     changed_when: false
+     when: ansible_distribution == "CentOS"
+ 
+   - name: update repository index (Ubuntu)
+     tags: always
+     apt:
+       update_cache: yes
+     changed_when: false
+     when: ansible_distribution == "Ubuntu"
+ 
+ - hosts: all
+   become: true
+   roles:
+     - base
+    
+ - hosts: workstations
+   become: true
+   roles:
+     - workstations
+ 
+ - hosts: web_servers
+   become: true
+   roles:
+     - web_servers
+ 
+ - hosts: db_servers
+   become: true
+   roles:
+     - db_servers
+ 
+ - hosts: file_servers
+   become: true
+   roles:
+     - file_servers
